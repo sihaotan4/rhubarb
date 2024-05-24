@@ -26,6 +26,21 @@ This project is inspired by the paper: [Role-Based Access Controls (Ferraiolo an
     - Set Notation for Permissions: Use a DSL similar to set notation (set algebra) to resolve permissions and define complex groupings or sets of users.
     - Advanced Groupings: Define permissions based on intersections, unions, and differences of sets, allowing for sophisticated access control rules.
 
+# example queries
+```
+(department:tax AND designation:partner)
+
+((division:product OR division:finance) AND designation:intern)
+
+(division:product AND division:finance) => empty set
+
+((department:strategy AND security_clearance:true) AND designation:senior)
+
+// grant to personnel from these teams but only partners or seniors or junior staff with clearance
+((department:r&d OR division:strategy) AND (security_clearance:true OR (designation:partner OR designation:senior)))
+```
+observe that intersections act mostly as filters - it's the unions which give some interesting capabilities
+
 # inspiration
 
 [Role-Based Access Controls (Ferraiolo and Kuhn, 1992)](https://arxiv.org/ftp/arxiv/papers/0903/0903.2171.pdf)

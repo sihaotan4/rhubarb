@@ -1,8 +1,8 @@
 use std::path::Path;
 use std::fs::File;
-use crate::role_registry::RoleRegistry;
+use crate::set_registry::SetRegistry;
 
-pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<RoleRegistry> {
+pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<SetRegistry> {
     let file = File::open(csv_file_path)?;
     let mut csv_rdr = csv::ReaderBuilder::new()
         .delimiter(b',')
@@ -18,12 +18,12 @@ pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<RoleR
         })
         .collect();
 
-    if transformed_headers.get(0) != Some(&"ID".to_string()) {
-        return Err(anyhow::anyhow!("First column is not 'ID'"));
+    if transformed_headers.get(0) != Some(&"id".to_string()) {
+        return Err(anyhow::anyhow!("First column is not 'id'"));
     }
     
     // process rows by processing each entry
-    let mut registry = RoleRegistry::new();
+    let mut registry = SetRegistry::new();
 
     while let Some(result) = csv_rdr.records().next() {
         // extract the row id
@@ -39,7 +39,7 @@ pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<RoleR
                 let transformed_entry = entry
                     .trim()
                     .to_lowercase()
-                    .replace(|c: char| c.is_whitespace(), "_");
+                    .replace(|c: char| c.is_whitespace() || c == '(' || c == ')', "_");
 
                 let key = format!("{transformed_header}:{transformed_entry}");
 
