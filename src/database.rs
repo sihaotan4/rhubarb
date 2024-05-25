@@ -15,6 +15,23 @@ pub struct Database {
     //pub access_matrix:
 }
 
+impl Database {
+    pub fn status_report(&self) {
+        let num_asset_ids = self.asset_registry.ids.len();
+        let num_user_ids = self.user_registry.ids.len();
+        let total_permutations = num_asset_ids * num_user_ids;
+        let num_permissions = self.permission_log.len();
+
+        println!("Asset count: {}", num_asset_ids);
+        println!("User count: {}", num_user_ids);
+        println!(
+            "Possible permissions: {} x 1 permission type (READ)",
+            total_permutations
+        );
+        println!("Permissions in effect: {}", num_permissions);
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Permission {
     // WIP

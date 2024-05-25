@@ -6,9 +6,11 @@ use std::path::Path;
 fn main() {
     let database = new_database_from_files(
         Path::new("mock_data/assets.csv"),
-        Path::new("mock_data/users.csv"),
+        Path::new("mock_data/employees.csv"),
     )
     .unwrap();
+
+    database.status_report();
 
     //dbg!(registry.data.keys());
 
