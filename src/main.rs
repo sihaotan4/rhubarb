@@ -1,15 +1,16 @@
 use rhubarb::parser::execute;
-use rhubarb::{data_pipeline, set_registry::SetRegistry};
-use std::path::Path;
+use rhubarb::pipeline::new_database_from_files;
 use std::io::{self, Write};
+use std::path::Path;
 
 fn main() {
-    println!("Loading set registry...");
-    
-    let registry: SetRegistry = 
-        data_pipeline::load_role_registry_from_csv(Path::new("mock_data.csv")).unwrap();
+    let database = new_database_from_files(
+        Path::new("mock_data/assets.csv"),
+        Path::new("mock_data/users.csv"),
+    )
+    .unwrap();
 
-    dbg!(registry.data.keys());
+    //dbg!(registry.data.keys());
 
     loop {
         print!("Enter query: ");
@@ -20,14 +21,18 @@ fn main() {
 
         query = query.trim().to_string();
 
-        if query== "exit" {
+        if query == "exit" {
             break;
         }
 
-        let result = execute(&query, &registry.data);
+        let result = execute(&query, &database.asset_registry.data);
         match result {
-            Ok(set) => {println!("{:?}", set);}
-            Err(err) => {println!("{}", err);}
+            Ok(set) => {
+                println!("{:?}", set);
+            }
+            Err(err) => {
+                println!("{}", err);
+            }
         }
         println!();
     }

@@ -1,3 +1,3 @@
-pub mod data_pipeline;
-pub mod set_registry;
+pub mod database;
 pub mod parser;
+pub mod pipeline;

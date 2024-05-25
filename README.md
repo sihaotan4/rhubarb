@@ -4,9 +4,19 @@ Rhubarb is a lightweight query language designed to represent sets of asset perm
 
 Inspired by the paper: [Role-Based Access Controls (Ferraiolo and Kuhn, 1992)](https://arxiv.org/ftp/arxiv/papers/0903/0903.2171.pdf).
 
+### Rhubarb is for teams that have the following considerations:
+
+Complexity and Scale: If the organization has a large number of users and assets, leading to a high cardinality of permissions, Rhubarb’s ability to simplify and manage these permissions through a query language can be very beneficial.
+
+Data Governance: For organizations with strict data governance policies and the need for clear, auditable access control, Rhubarb’s approach to permissions through declarative statements can enhance transparency and compliance.
+
+Collaboration: Rhubarb aims to bridge the gap between the data team and the business side, making it easier for both to communicate and agree on access permissions. If such a gap is a significant issue, Rhubarb could improve collaboration and efficiency.
+
+No Lock-In or Specific Infrastructure Requirements: Rhubarb is designed to be lightweight and infrastructure-agnostic, meaning it doesn't tie you to any specific platform or ecosystem. This flexibility can be advantageous for organizations that use a variety of tools and platforms, avoiding vendor lock-in and allowing for easier integration with existing systems.
+
 # Problem Space
 
-Rhubarb addresses the complexities of asset access control in large organizations, which typically exhibit the following characteristics:
+Rhubarb addresses the complexities of asset access control in large organizations, characterized by:
 
 - Diverse User Base: Large organizations often have numerous users with varying levels of access across many assets, creating a challenging landscape for data access control systems.
 
@@ -22,7 +32,7 @@ Rhubarb addresses the complexities of asset access control in large organization
 
 # Rhubarb's solution
 
-To address these challenges, Rhubarb provides a solution that balances readability and expressiveness, allowing both the data team and business side to effectively manage and communicate access permissions. The idea is for the two teams to agree on only 5-50 such statements, which is a manageable number that is easily reviewable and can be readily agreed upon.
+Rhubarb provides a balanced solution, enhancing readability and expressiveness, allowing both the data team and business side to manage and communicate access permissions effectively. The aim is for the two teams to agree on a manageable number of statements (5-50), which can be easily reviewed and agreed upon.
 
 ```
 GRANT READ ON (schema:tax EXCEPT table:sensitive_audit) TO (department:tax AND (designation:partner OR designation:senior))

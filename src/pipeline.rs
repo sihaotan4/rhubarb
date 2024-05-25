@@ -1,27 +1,39 @@
-use std::path::Path;
+use crate::database::{Database, SetRegistry};
 use std::fs::File;
-use crate::set_registry::SetRegistry;
+use std::{collections::HashMap, path::Path};
 
-pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<SetRegistry> {
-    let file = File::open(csv_file_path)?;
-    let mut csv_rdr = csv::ReaderBuilder::new()
-        .delimiter(b',')
-        .from_reader(file);
+pub fn new_database_from_files(
+    asset_csv_filepath: &Path,
+    users_csv_filepath: &Path,
+) -> anyhow::Result<Database> {
+    let db = Database {
+        asset_registry: load_set_registry_from_csv(asset_csv_filepath)?,
+        user_registry: load_set_registry_from_csv(users_csv_filepath)?,
+        permission_log: HashMap::new(),
+    };
+
+    anyhow::Ok(db)
+}
+
+fn load_set_registry_from_csv(csv_filepath: &Path) -> anyhow::Result<SetRegistry> {
+    let file = File::open(csv_filepath)?;
+    let mut csv_rdr = csv::ReaderBuilder::new().delimiter(b',').from_reader(file);
 
     let headers = csv_rdr.headers()?;
-    let transformed_headers: Vec<String> = headers.iter()
+    let transformed_headers: Vec<String> = headers
+        .iter()
         .map(|header| {
             header
                 .trim()
                 .to_lowercase()
-                .replace(|c: char| !c.is_alphanumeric(), "_")
+                .replace(|c: char| c.is_whitespace() || c == '(' || c == ')', "_")
         })
         .collect();
 
     if transformed_headers.get(0) != Some(&"id".to_string()) {
         return Err(anyhow::anyhow!("First column is not 'id'"));
     }
-    
+
     // process rows by processing each entry
     let mut registry = SetRegistry::new();
 
@@ -29,6 +41,8 @@ pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<SetRe
         // extract the row id
         let record = result?;
         let id = record.get(0).unwrap().to_string();
+
+        registry.ids.insert(id.clone());
 
         // iterate through each entry in the row
         // additionally zip this with the headers for key creation
@@ -47,5 +61,5 @@ pub fn load_role_registry_from_csv(csv_file_path: &Path) -> anyhow::Result<SetRe
             })
     }
 
-    Ok(registry)
+    anyhow::Ok(registry)
 }
