@@ -28,10 +28,7 @@ impl Database {
         println!("Asset count: {}", num_asset_ids);
         println!("User count: {}", num_user_ids);
         println!("Valid permissions {:?}", valid_permissions);
-        println!(
-            "Maximum permission combinations: {}",
-            total_permutations,
-        );
+        println!("Maximum permission combinations: {}", total_permutations,);
         println!("Statements in effect: {}", num_statements);
     }
 }

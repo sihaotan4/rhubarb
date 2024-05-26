@@ -16,7 +16,7 @@ pub enum SetExpr {
     Except(Box<SetExpr>, Box<SetExpr>),       // EXCEPT which is shorthand for A n B'
 }
 
-// parses set lang only 
+// parses set lang only
 // expecting this type of format (A OR (B AND C))
 pub fn parse(
     input: &str,

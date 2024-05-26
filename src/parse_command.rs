@@ -1,8 +1,13 @@
-use nom::{
-    bytes::complete::tag, character::complete::{alpha1, multispace1}, sequence::delimited, Finish, IResult
+use crate::{
+    database::Database,
+    parse_set::{self, SetExpr},
 };
-use std::collections::HashSet;
-use crate::{database::Database, parse_set::{self, SetExpr}};
+use nom::{
+    bytes::complete::tag,
+    character::complete::{alpha1, multispace1},
+    Finish, IResult,
+};
+use std::{collections::HashSet, fmt};
 
 #[derive(Debug, Clone)]
 pub struct CommandParseResult {
@@ -14,6 +19,16 @@ pub struct CommandParseResult {
     metadata: CommandParseResultMetadata,
 }
 
+impl fmt::Display for CommandParseResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "CommandParseResult {{\n\n")?;
+        write!(f, "database_operation: {:?},\n\n", self.database_operation)?;
+        write!(f, "asset_set_affected: {:?},\n\n", self.asset_set_affected)?;
+        write!(f, "user_set_affected: {:?},\n\n", self.user_set_affected)?;
+        write!(f, "}}")
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct CommandParseResultMetadata {
     //command_received_datetime: DateTime<Utc>,
@@ -22,27 +37,25 @@ pub struct CommandParseResultMetadata {
 }
 impl CommandParseResultMetadata {
     pub fn new() -> CommandParseResultMetadata {
-        CommandParseResultMetadata {  }
+        CommandParseResultMetadata {}
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum DatabaseOperationType {
-    Grant(String)
+    Grant(String),
 }
 
 impl Database {
-    pub fn resolve_command(
-        &self,
-        input: &str,
-    ) -> anyhow::Result<CommandParseResult> {
+    pub fn resolve_command(&self, input: &str) -> anyhow::Result<CommandParseResult> {
         let command_raw = input.to_string();
 
-        let (leftover, (database_operation, asset_set_expr, user_set_expr)) = match parse_command_to_expr(input).finish() {
-            Ok(x) => Ok(x),
-            Err(err) => Err(err.to_string()),
-        }
-        .unwrap();
+        let (leftover, (database_operation, asset_set_expr, user_set_expr)) =
+            match parse_command_to_expr(input).finish() {
+                Ok(x) => Ok(x),
+                Err(err) => Err(err.to_string()),
+            }
+            .unwrap();
 
         // check leftover - means parsing failed in some unexpected way
         if !leftover.is_empty() {
@@ -52,7 +65,7 @@ impl Database {
             ));
         }
 
-        // check permission validity 
+        // check permission validity
         match database_operation.clone() {
             DatabaseOperationType::Grant(permission) => {
                 if !self.valid_permissions.contains(&permission) {
@@ -64,7 +77,7 @@ impl Database {
         // resolve sets
         let asset_set_affected = parse_set::resolve_set(asset_set_expr, &self.asset_registry.data)?;
         let user_set_affected = parse_set::resolve_set(user_set_expr, &self.user_registry.data)?;
-        
+
         let result = CommandParseResult {
             command_raw,
             database_operation,
@@ -93,10 +106,10 @@ pub fn parse_command_to_expr(
     let (leftover_2, user_set_expr) = parse_set::parse_expr(parts[1])?;
 
     // Return the first leftover that is not empty - otherwise it's impossible to combine and return a string ref
-    // but this is going to screw up the result if both fail 
-    
+    // but this is going to screw up the result if both fail
+
     // WIP
-    
+
     let leftover = if !leftover_1.trim().is_empty() {
         leftover_1
     } else if !leftover_2.trim().is_empty() {
@@ -105,7 +118,10 @@ pub fn parse_command_to_expr(
         ""
     };
 
-    Ok((leftover, (database_operation, asset_set_expr, user_set_expr)))
+    Ok((
+        leftover,
+        (database_operation, asset_set_expr, user_set_expr),
+    ))
 }
 
 // Only supports GRANT now

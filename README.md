@@ -50,17 +50,20 @@ Using set language allows for greater expressiveness than hierarchical classific
 
 Readability is crucial, as Rhubarb operates at the intersection of the data and business teams. Expressiveness is equally important, enabling the creation of thousands of granular permissions from a single statement.
 
-# example queries
+# examples
+input:
 ```
-(department:tax AND designation:partner)
-
-((division:product OR division:finance) AND designation:intern)
-
-(division:product AND division:finance) => empty set
-
-((department:strategy AND security_clearance:true) AND designation:senior)
-
-// grant to personnel from these teams but only partners or seniors or junior staff with clearance
-((department:r&d OR division:strategy) AND (security_clearance:true OR (designation:partner OR designation:senior)))
+GRANT WRITE ON (schema:inventory EXCEPT table:products) TO ((designation:partner OR designation:senior) AND department:tax)
 ```
-observe that intersections act mostly as filters - it's the unions which give some interesting capabilities
+output:
+```
+CommandParseResult {
+
+database_operation: Grant("WRITE"),
+
+asset_set_affected: {"inventory.adjustments", "inventory.items", "inventory.vendor_contacts", "inventory.purchase_orders", "inventory.order_requests", "inventory.locations", "inventory.receipts", "inventory.suppliers", "inventory.return_requests", "inventory.inventory_audits", "inventory.stock_levels", "inventory.inventory_movements", "inventory.shipments", "inventory.product_catalog", "inventory.warehouses"},
+
+user_set_affected: {"laura.martinez@example.com", "susan.green@example.com", "jennifer.green@example.com", "emily.roberts@example.com", "amanda.patterson@example.com", "sandra.bailey@example.com", "sarah.price@example.com", "patricia.lopez@example.com"},
+
+}
+```

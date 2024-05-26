@@ -28,8 +28,8 @@ fn main() {
 
         let result = database.resolve_command(command.as_str());
         match result {
-            Ok(set) => {
-                println!("{:?}", set);
+            Ok(parse_result) => {
+                println!("{}", parse_result);
             }
             Err(err) => {
                 println!("{}", err);

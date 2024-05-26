@@ -7,7 +7,7 @@ pub fn new_database_from_files(
     config_filepath: &Path,
     asset_csv_filepath: &Path,
     users_csv_filepath: &Path,
-) -> anyhow::Result<Database> { 
+) -> anyhow::Result<Database> {
     let config_toml = std::fs::read_to_string(config_filepath)?;
     let config: Config = toml::from_str(&config_toml)?;
 
