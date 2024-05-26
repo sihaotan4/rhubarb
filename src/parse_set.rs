@@ -9,7 +9,7 @@ use nom::{
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, PartialEq)]
-enum SetExpr {
+pub enum SetExpr {
     Set(String),
     Union(Box<SetExpr>, Box<SetExpr>),        // OR
     Intersection(Box<SetExpr>, Box<SetExpr>), // AND

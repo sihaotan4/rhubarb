@@ -1,4 +1,3 @@
-use rhubarb::parse_set;
 use rhubarb::database_pipeline::new_database_from_files;
 use std::io::{self, Write};
 use std::path::Path;
@@ -12,23 +11,22 @@ fn main() {
     .unwrap();
 
     database.status_report();
-
-    //dbg!(registry.data.keys());
+    println!();
 
     loop {
-        print!("Enter query: ");
+        print!("Enter command: ");
         io::stdout().flush().unwrap();
 
-        let mut query = String::new();
-        io::stdin().read_line(&mut query).unwrap();
+        let mut command = String::new();
+        io::stdin().read_line(&mut command).unwrap();
 
-        query = query.trim().to_string();
+        command = command.trim().to_string();
 
-        if query == "exit" {
+        if command == "exit" {
             break;
         }
 
-        let result = parse_set::parse(&query, &database.asset_registry.data);
+        let result = database.resolve_command(command.as_str());
         match result {
             Ok(set) => {
                 println!("{:?}", set);

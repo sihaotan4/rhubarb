@@ -11,8 +11,8 @@ pub struct Database {
     pub user_registry: SetRegistry,
     // valid permissions are defined in config
     pub valid_permissions: Vec<String>,
-    // mutable map of permissions
-    pub permission_log: HashMap<String, Permission>,
+    // mutable map of permissions statements (which expand to granular permissions)
+    pub statement_log: HashMap<String, Permission>,
     // Access matrix WIP
     //pub access_matrix:
 }
@@ -23,7 +23,7 @@ impl Database {
         let num_user_ids = self.user_registry.ids.len();
         let valid_permissions = self.valid_permissions.clone();
         let total_permutations = num_asset_ids * num_user_ids * valid_permissions.len();
-        let num_permissions = self.permission_log.len();
+        let num_statements = self.statement_log.len();
 
         println!("Asset count: {}", num_asset_ids);
         println!("User count: {}", num_user_ids);
@@ -32,7 +32,7 @@ impl Database {
             "Maximum permission combinations: {}",
             total_permutations,
         );
-        println!("Permissions in effect: {}", num_permissions);
+        println!("Statements in effect: {}", num_statements);
     }
 }
 

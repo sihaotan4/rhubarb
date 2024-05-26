@@ -15,7 +15,7 @@ pub fn new_database_from_files(
         asset_registry: load_set_registry_from_csv(asset_csv_filepath)?,
         user_registry: load_set_registry_from_csv(users_csv_filepath)?,
         valid_permissions: config.database_config.valid_permissions,
-        permission_log: HashMap::new(),
+        statement_log: HashMap::new(),
     };
 
     anyhow::Ok(db)
