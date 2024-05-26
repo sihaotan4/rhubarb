@@ -1,3 +1,5 @@
 pub mod database;
-pub mod parser;
-pub mod pipeline;
+pub mod database_pipeline;
+pub mod parse_set;
+pub mod parse_command;
+pub mod config;

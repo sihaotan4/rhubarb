@@ -1,0 +1,2 @@
+[database_config]
+valid_permissions = ["READ", "WRITE", "ADMIN"]

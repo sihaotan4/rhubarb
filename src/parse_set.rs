@@ -1,10 +1,3 @@
-// GRANT READ ON table:test_table TO division:product AND designation:intern
-
-// GRANT READ ON table:test_table TO (division:product AND designation:senior) OR designation:partner
-
-// applying the same set logic on the asset side of things creates more extensibility
-// GRANT READ ON (schema:test_schema EXCEPT table:test_table) TO (designation:intern EXCEPT division:product)
-
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_till},
@@ -21,6 +14,32 @@ enum SetExpr {
     Union(Box<SetExpr>, Box<SetExpr>),        // OR
     Intersection(Box<SetExpr>, Box<SetExpr>), // AND
     Except(Box<SetExpr>, Box<SetExpr>),       // EXCEPT which is shorthand for A n B'
+}
+
+// parses set lang only 
+// expecting this type of format (A OR (B AND C))
+pub fn parse(
+    input: &str,
+    set_map: &HashMap<String, HashSet<String>>,
+) -> anyhow::Result<HashSet<String>> {
+    // need to transform the error to an owned error to prevent lifetime issues
+    let (leftover, parsed_expr) = match parse_expr(input).finish() {
+        Ok(x) => Ok(x),
+        Err(err) => Err(err.to_string()),
+    }
+    .unwrap();
+
+    // analyse leftover - means parsing failed in some unexpected way
+    if !leftover.is_empty() {
+        return Err(anyhow::anyhow!(
+            "Unexpected input was not parsed correctly: {}",
+            leftover
+        ));
+    }
+
+    let result = resolve_set(parsed_expr, set_map)?;
+
+    Ok(result)
 }
 
 fn parse_set(input: &str) -> IResult<&str, SetExpr> {
@@ -74,11 +93,11 @@ fn parse_term(input: &str) -> IResult<&str, SetExpr> {
     alt((parse_parens, parse_set))(input)
 }
 
-fn parse_expr(input: &str) -> IResult<&str, SetExpr> {
+pub fn parse_expr(input: &str) -> IResult<&str, SetExpr> {
     alt((parse_union, parse_intersection, parse_except, parse_term))(input)
 }
 
-fn resolve_set(
+pub fn resolve_set(
     parsed_expression: SetExpr,
     set_map: &HashMap<String, HashSet<String>>,
 ) -> anyhow::Result<HashSet<String>> {
@@ -120,30 +139,6 @@ fn resolve_set(
     };
 
     result
-}
-
-pub fn execute(
-    input: &str,
-    set_map: &HashMap<String, HashSet<String>>,
-) -> anyhow::Result<HashSet<String>> {
-    // need to transform the error to an owned error to prevent lifetime issues
-    let (leftover, parsed_expr) = match parse_expr(input).finish() {
-        Ok(x) => Ok(x),
-        Err(err) => Err(err.to_string()),
-    }
-    .unwrap();
-
-    // analyse leftover - means parsing failed in some unexpected way
-    if !leftover.is_empty() {
-        return Err(anyhow::anyhow!(
-            "Unexpected input was not parsed correctly: {}",
-            leftover
-        ));
-    }
-
-    let result = resolve_set(parsed_expr, set_map)?;
-
-    Ok(result)
 }
 
 #[cfg(test)]

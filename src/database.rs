@@ -9,6 +9,8 @@ pub struct Database {
     pub asset_registry: SetRegistry,
     // derived from employee databases or other employee registries
     pub user_registry: SetRegistry,
+    // valid permissions are defined in config
+    pub valid_permissions: Vec<String>,
     // mutable map of permissions
     pub permission_log: HashMap<String, Permission>,
     // Access matrix WIP
@@ -19,14 +21,16 @@ impl Database {
     pub fn status_report(&self) {
         let num_asset_ids = self.asset_registry.ids.len();
         let num_user_ids = self.user_registry.ids.len();
-        let total_permutations = num_asset_ids * num_user_ids;
+        let valid_permissions = self.valid_permissions.clone();
+        let total_permutations = num_asset_ids * num_user_ids * valid_permissions.len();
         let num_permissions = self.permission_log.len();
 
         println!("Asset count: {}", num_asset_ids);
         println!("User count: {}", num_user_ids);
+        println!("Valid permissions {:?}", valid_permissions);
         println!(
-            "Possible permissions: {} x 1 permission type (READ)",
-            total_permutations
+            "Maximum permission combinations: {}",
+            total_permutations,
         );
         println!("Permissions in effect: {}", num_permissions);
     }
@@ -44,7 +48,7 @@ pub struct SetRegistry {
     pub data: HashMap<String, HashSet<String>>,
     // for convenience we also store the list of ids
     pub ids: HashSet<String>,
-    pub etl_date: DateTime<Utc>,
+    pub etl_datetime: DateTime<Utc>,
 }
 
 impl SetRegistry {
@@ -52,7 +56,7 @@ impl SetRegistry {
         SetRegistry {
             data: HashMap::new(),
             ids: HashSet::new(),
-            etl_date: Utc::now(),
+            etl_datetime: Utc::now(),
         }
     }
 
