@@ -52,10 +52,9 @@ impl Database {
 
         let (leftover, (database_operation, asset_set_expr, user_set_expr)) =
             match parse_command_to_expr(input).finish() {
-                Ok(x) => Ok(x),
-                Err(err) => Err(err.to_string()),
-            }
-            .unwrap();
+                Ok(x) => x,
+                Err(err) => return Err(anyhow::anyhow!(err.to_string())),
+            };
 
         // check leftover - means parsing failed in some unexpected way
         if !leftover.is_empty() {
@@ -98,6 +97,10 @@ pub fn parse_command_to_expr(
 
     // Split the remaining input on " TO "
     let parts: Vec<&str> = input.splitn(2, " TO ").collect();
+
+    if parts.len() != 2 {
+        return Err(nom::Err::Error(nom::error::Error::new(input, nom::error::ErrorKind::Count)));
+    }
 
     // first set - the asset set e.g. (schema:tax EXCEPT table:sensitive_audit)
     let (leftover_1, asset_set_expr) = parse_set::parse_expr(parts[0])?;

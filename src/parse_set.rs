@@ -134,7 +134,7 @@ pub fn resolve_set(
         }
         SetExpr::Set(key) => set_map
             .get(&key)
-            .ok_or(anyhow::anyhow!("Role not found: {}", key))
+            .ok_or(anyhow::anyhow!("Key not found: {}", key))
             .map(|set| set.clone()),
     };
 
